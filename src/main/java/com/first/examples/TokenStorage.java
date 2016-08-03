@@ -21,4 +21,14 @@ public class TokenStorage {
     map.remove(sessionId);
   }
 
+  public static String getToken(String sessionId){
+
+    return map.get(sessionId);
+
+  }
+
+  public static int getSize(){
+    return map.size();
+  }
+
 }

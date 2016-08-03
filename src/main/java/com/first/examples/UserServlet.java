@@ -44,6 +44,8 @@ public class UserServlet extends HttpServlet {
 
     }
 
+    System.out.println(TokenStorage.getSize());
+
   }
 
   @Override

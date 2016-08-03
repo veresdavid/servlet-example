@@ -30,19 +30,25 @@ public class UserFilter implements Filter {
     HttpServletRequest req = (HttpServletRequest) servletRequest;
     HttpServletResponse resp = (HttpServletResponse) servletResponse;
 
-    if (req.getMethod() == "POST") {
+    String sessionId = req.getSession().getId();
+    String token = req.getHeader("token");
+    String storageToken = TokenStorage.getToken(sessionId);
 
-      System.out.println("POST");
+    resp.setCharacterEncoding("UTF-8");
 
-      if (req.getHeader("token") == null) {
-        System.out.println("NO TOKEN YET");
-      } else {
-        System.out.println("TOKEN DETECTED");
-      }
+    if (req.getMethod() == "POST" || (token!=null && storageToken!=null && token.equals(storageToken))) {
+
+      filterChain.doFilter(servletRequest, servletResponse);
+
+      resp.setStatus(200);
+      resp.getWriter().println("niceuuuuuuuuu");
+
+    }else{
+
+      resp.setStatus(400);
+      resp.getWriter().println("fakk it!!");
 
     }
-
-    filterChain.doFilter(servletRequest, servletResponse);
 
   }
 
