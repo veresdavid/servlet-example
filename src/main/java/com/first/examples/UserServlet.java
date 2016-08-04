@@ -59,6 +59,7 @@ public class UserServlet extends HttpServlet {
 
       resp.setStatus(200);
       resp.getWriter().println("User saved in the session!");
+      resp.setHeader("token", TokenStorage.getToken(req.getSession().getId()));
 
     } else {
 
