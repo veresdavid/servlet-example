@@ -28,6 +28,7 @@ public class UserServlet extends HttpServlet {
     HttpSession session = req.getSession();
     User user = (User) session.getAttribute("userObject");
 
+    // if we have a user in the session, then print it in json format
     if (user != null) {
 
       ObjectMapper mapper = new ObjectMapper();
@@ -44,8 +45,6 @@ public class UserServlet extends HttpServlet {
 
     }
 
-    System.out.println(TokenStorage.getSize());
-
   }
 
   @Override
@@ -54,46 +53,17 @@ public class UserServlet extends HttpServlet {
 
     resp.setCharacterEncoding("UTF-8");
 
-    // getting the posted data
-    String name = req.getParameter("name");
-    String birthday = req.getParameter("birthday");
-    String weight = req.getParameter("weight");
+    if (isValidUserData(req)) {
 
-    // validating the posted data
-    boolean validPost = true;
-
-    // checking the name
-    if (name == null || name == "") {
-      validPost = false;
-    }
-
-    // checking the birthday
-    if (birthday == null) {
-      validPost = false;
-    }
-
-    // checking the weight
-    if (weight == null || Double.parseDouble(weight) <= 0) {
-      validPost = false;
-    }
-
-    if (validPost) {
-
-      // creating new User object
-      User user = new User(name, LocalDate.parse(birthday), Double.parseDouble(weight));
-
-      // saving the object in the session
-      HttpSession session = req.getSession();
-      session.setAttribute("userObject", user);
+      saveUserInSession(req);
 
       resp.setStatus(200);
       resp.getWriter().println("User saved in the session!");
-      resp.getWriter().println(user);
 
     } else {
 
       resp.setStatus(400);
-      resp.getWriter().println("GTFO");
+      resp.getWriter().println("Invalid data!");
 
     }
 
@@ -122,7 +92,10 @@ public class UserServlet extends HttpServlet {
       // modifiy the birthday if its requested
       String birthday = req.getParameter("birthday");
       if (birthday != null) {
-        user.setBirthday(LocalDate.parse(birthday));
+        try {
+          user.setBirthday(LocalDate.parse(birthday));
+        } catch (Exception e) {
+        }
       } else {
         System.out.println("birthday is null");
       }
@@ -130,7 +103,10 @@ public class UserServlet extends HttpServlet {
       // modify the weight if its requested
       String weight = req.getParameter("weight");
       if (weight != null) {
-        user.setWeight(Double.parseDouble(weight));
+        try {
+          user.setWeight(Double.parseDouble(weight));
+        } catch (Exception e) {
+        }
       } else {
         System.out.println("weight is null");
       }
@@ -159,8 +135,6 @@ public class UserServlet extends HttpServlet {
 
     HttpSession session = req.getSession();
 
-    System.out.println(session.getAttribute("userObject"));
-
     if (session.getAttribute("userObject") != null) {
 
       session.removeAttribute("userObject");
@@ -173,6 +147,73 @@ public class UserServlet extends HttpServlet {
       resp.getWriter().println("Can't delete non existing user!");
 
     }
+
+  }
+
+  public boolean isValidUserData(HttpServletRequest req) {
+
+    String name = req.getParameter("name");
+    String birthday = req.getParameter("birthday");
+    String weight = req.getParameter("weight");
+
+    // checking the name
+    if (name == null) {
+
+      return false;
+
+    }
+
+    // checking the birthday
+    if (birthday == null) {
+
+      return false;
+
+    } else {
+      try {
+
+        LocalDate localDate = LocalDate.parse(birthday);
+
+      } catch (Exception e) {
+
+        return false;
+
+      }
+    }
+
+    // checking weight
+    if (weight == null) {
+
+      return false;
+
+    } else {
+
+      Double parsedWeight;
+
+      try {
+        parsedWeight = Double.parseDouble(weight);
+      } catch (Exception e) {
+        return false;
+      }
+
+      if (parsedWeight < 2 || parsedWeight > 500) {
+        return false;
+      }
+
+    }
+
+    return true;
+  }
+
+  public void saveUserInSession(HttpServletRequest req) {
+
+    String name = req.getParameter("name");
+    LocalDate birthday = LocalDate.parse(req.getParameter("birthday"));
+    Double weight = Double.parseDouble(req.getParameter("weight"));
+
+    User user = new User(name, birthday, weight);
+
+    HttpSession session = req.getSession();
+    session.setAttribute("userObject", user);
 
   }
 

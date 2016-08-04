@@ -36,17 +36,15 @@ public class UserFilter implements Filter {
 
     resp.setCharacterEncoding("UTF-8");
 
-    if (req.getMethod() == "POST" || (token!=null && storageToken!=null && token.equals(storageToken))) {
+    if (req.getMethod() == "POST" || (token != null && storageToken != null && token
+        .equals(storageToken))) {
 
       filterChain.doFilter(servletRequest, servletResponse);
 
-      resp.setStatus(200);
-      resp.getWriter().println("niceuuuuuuuuu");
+    } else {
 
-    }else{
-
-      resp.setStatus(400);
-      resp.getWriter().println("fakk it!!");
+      resp.setStatus(401);
+      resp.getWriter().println("Unauthorized");
 
     }
 
